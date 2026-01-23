@@ -34,7 +34,7 @@ withDefaults(
             </Link>
             <Link href="/create-room"
                 class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] font-medium transition-colors duration-300">
-                Create a Room
+                Start Meeting
             </Link>
         </nav>
 
