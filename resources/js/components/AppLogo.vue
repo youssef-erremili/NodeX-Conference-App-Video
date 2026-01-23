@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div
-        class="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"
-    >
-        <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
-    </div>
-    <div class="ml-1 grid flex-1 text-left text-sm">
-        <span class="mb-0.5 truncate leading-tight font-semibold">NodeX</span
-        >
-    </div>
+    <Link href="/">
+        <div class="flex items-center justify-center w-fit">
+            <img src="/images/lettermark.svg" alt="NodeX Logo" class="h-8 w-auto ml-3">
+            <img src="/images/logo.png" alt="NodeX Logo" class="h-10 w-auto" />
+        </div>
+    </Link>
 </template>
