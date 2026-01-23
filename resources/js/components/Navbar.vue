@@ -18,23 +18,23 @@ withDefaults(
 </script>
 
 <template>
-    <div class="py-5 px-8 flex items-center w-full">
+    <div class="py-8 px-12 flex items-center w-full shadow-lg shadow-gray-100">
         <!-- Logo -->
         <AppLogo />
 
         <!-- Center Navigation Links -->
         <nav class="flex items-center gap-12 absolute left-1/2 transform -translate-x-1/2">
             <Link href="/"
-                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] text-sm font-medium transition-colors duration-300">
+                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] font-medium transition-colors duration-300">
                 Home
             </Link>
             <Link href="/join-meeting"
-                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] text-sm font-medium transition-colors duration-300">
+                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] font-medium transition-colors duration-300">
                 Join
             </Link>
             <Link href="/create-room"
-                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] text-sm font-medium transition-colors duration-300">
-                Create a Room
+                class="cursor-pointer text-gray-600 hover:text-[#FF4D3C] font-medium transition-colors duration-300">
+                Start Meeting
             </Link>
         </nav>
 
