@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import Button from './ui/button/Button.vue';
 import Card from './ui/card/Card.vue';
 import CardDescription from './ui/card/CardDescription.vue';
 import CardHeader from './ui/card/CardHeader.vue';
+import Spinner from './ui/spinner/Spinner.vue';
 
 const FeaturesCard = [
     {
@@ -24,6 +27,29 @@ const FeaturesCard = [
         class: 'bg-gradient-to-br from-green-400 to-green-600',
     }
 ]
+
+const errorMessage = ref<string | null | boolean>(null);
+const meetingCode = ref<string>('');
+const isLoading = ref<boolean>(false);
+
+
+const CheckMeetingCode = () => {
+    isLoading.value = true;
+
+    if (!meetingCode.value || meetingCode.value.trim() === '') {
+        errorMessage.value = 'Please enter a valid meeting code or link.';
+        isLoading.value = false;
+        return;
+    }
+
+    setTimeout(() => {
+        isLoading.value = false;
+        errorMessage.value = null;
+        router.visit('/join-meeting');
+        console.log('Checking meeting code...', meetingCode.value);
+    }, 1000);
+
+}
 
 </script>
 
@@ -57,13 +83,21 @@ const FeaturesCard = [
                     <div
                         class="flex items-center gap-2 pl-6 bg-gray-50 rounded-2xl shadow-lg p-3 border-2 border-gray-100 hover:border-[#FF4D3C] transition-colors duration-300">
                         <ion-icon size="large" name="videocam-outline"></ion-icon>
-                        <input type="text" placeholder="Enter meeting code or link to join..."
+                        <input v-model="meetingCode" type="text" placeholder="Enter meeting code or link to join..."
                             class="flex-1 px-4 py-4 outline-none text-gray-700 bg-transparent text-lg" />
-                        <Button as="button" class="bg-[#FF4D3C] text-lg flex justify-center px-8 py-7! rounded-2xl">
-                            Join Now
-                            <ion-icon name="arrow-forward-outline"></ion-icon>
+                        <Button @click="CheckMeetingCode" as="button"
+                            class="bg-[#FF4D3C] text-lg flex items-center justify-center gap-2 px-8 py-7 w-40 rounded-2xl">
+                            <span>Join Now</span>
+                            <div class="flex items-center justify-center">
+                                <Spinner v-if="isLoading" class="w-5 h-5" />
+                                <ion-icon v-else name="arrow-forward-outline"></ion-icon>
+                            </div>
                         </Button>
                     </div>
+
+                    <template v-if="errorMessage">
+                        <p class="block text-red-500 mt-2">{{ errorMessage }}</p>
+                    </template>
                 </div>
 
                 <!-- Trusted Users -->
@@ -111,7 +145,8 @@ const FeaturesCard = [
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     <Card v-for="(card, index) in FeaturesCard" :key="index" class="border shadow-none px-8 py-10">
                         <CardHeader>
-                            <div :class="card.class" class="p-4 text-white rounded-xl flex items-center justify-center mb-4 mx-auto">
+                            <div :class="card.class"
+                                class="p-4 text-white rounded-xl flex items-center justify-center mb-4 mx-auto">
                                 <ion-icon size="large" :name="card.icon"></ion-icon>
                             </div>
                         </CardHeader>
