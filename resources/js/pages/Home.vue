@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Header from '@/components/Header.vue';
-import Navbar from '@/components/Navbar.vue';
-
+import HomeLayout from '@/layouts/HomeLayout.vue';
 </script>
 
 <template>
-    <Navbar :can-register="true"/>
-    <Header />
+    <HomeLayout>
+        <Header />
+    </HomeLayout>
 </template>
