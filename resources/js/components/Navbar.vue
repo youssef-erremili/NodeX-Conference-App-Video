@@ -42,7 +42,7 @@ withDefaults(
         <div class="flex items-center gap-3 flex-1 justify-end">
             <Link v-if="page.props.auth.user" :href="dashboard()"
                 class="px-5 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-none">
-                Dashboard
+                {{ page.props.auth.user.name }} Profile
             </Link>
             <template v-else>
                 <Link :href="login()"
