@@ -3,6 +3,13 @@ import Footer from '@/components/Footer.vue';
 import Navbar from '@/components/Navbar.vue';
 
 
+const props = defineProps({
+    displayFooter: {
+        type: Boolean,
+        default: true
+    }
+})
+
 </script>
 
 <template>
@@ -10,5 +17,5 @@ import Navbar from '@/components/Navbar.vue';
 
     <slot></slot>
 
-    <Footer />
+    <Footer v-if="props.displayFooter"></Footer>
 </template>
