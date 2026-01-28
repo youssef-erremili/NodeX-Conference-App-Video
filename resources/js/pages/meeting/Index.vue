@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { useUserMedia } from '@vueuse/core';
 import { ref, watchEffect } from 'vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
@@ -8,16 +7,13 @@ import Button from '@/components/ui/button/Button.vue';
 import HomeLayout from '@/layouts/HomeLayout.vue';
 
 const camera = ref<HTMLVideoElement | null>(null);
-const page = usePage();
+const page = usePage().props;
 const errorMessage = ref<string | null>(null);
-
-const { stream, start, stop, enabled } = useUserMedia({
-    constraints: { video: true }
-});
+const videoEnabled = ref(false);
+const audioEnabled = ref(false);
+const stream = ref<MediaStream | null>(null);
 
 const handleCameraError = (err: any) => {
-    console.error('Camera error:', err);
-
     if (err.name === 'NotAllowedError') {
         errorMessage.value = 'Camera access denied. Please allow camera permissions.';
     } else if (err.name === 'NotFoundError') {
@@ -29,26 +25,61 @@ const handleCameraError = (err: any) => {
     }
 };
 
-// Automatically update the video element when the stream changes
+const getMediaStream = async (constraints: MediaStreamConstraints) => {
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        return mediaStream;
+    } catch (err: any) {
+        handleCameraError(err);
+        throw err;
+    }
+};
+
 watchEffect(() => {
     if (camera.value && stream.value) {
         camera.value.srcObject = stream.value;
-        errorMessage.value = null; // Clear error when stream is available
+        errorMessage.value = null;
     }
 });
 
-const toggleCamera = async () => {
+const updateMediaStream = async () => {
     try {
-        if (!enabled.value) {
-            await start();
-            errorMessage.value = null;
-        } else {
-            stop();
+        if (stream.value) {
+            stream.value.getTracks().forEach(track => track.stop());
+            stream.value = null;
         }
+
+        if (videoEnabled.value || audioEnabled.value) {
+            const constraints: MediaStreamConstraints = {
+                video: videoEnabled.value,
+                audio: audioEnabled.value
+            };
+            stream.value = await getMediaStream(constraints);
+        }
+
+        errorMessage.value = null;
     } catch (err: any) {
         handleCameraError(err);
+        videoEnabled.value = false;
+        audioEnabled.value = false;
+        stream.value = null;
     }
 };
+
+const toggleCamera = async () => {
+    videoEnabled.value = !videoEnabled.value;
+    if (videoEnabled.value) {
+        audioEnabled.value = true;
+    }
+    await updateMediaStream();
+};
+
+const toggleAudio = async () => {
+    audioEnabled.value = !audioEnabled.value;
+    await updateMediaStream();
+};
+
+
 </script>
 
 <template>
@@ -64,25 +95,31 @@ const toggleCamera = async () => {
         <div class="flex justify-evenly items-center mt-10 p-10">
             <div class="flex flex-col items-center justify-center space-y-8">
                 <div class="relative w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden min-h-[450px]">
-                    <div
-                        class="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-medium z-10">
-                        {{ page.props.auth.user.name }}
+                    <div v-if="page.auth.user"
+                        class="absolute top-4 left-4 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-medium z-10">
+                        Logged in as
+                        <span class="bg-white/15 text-white font-semibold p-2 rounded-lg hover:bg-white/10">
+                            {{ page.auth.user.name }}
+                        </span>
                     </div>
 
-                    <Button class="absolute top-4 right-4 text-white z-10 p-2 rounded-lg hover:bg-white/10">
+                    <Button class="absolute top-4 right-4 bg-white/15 text-white z-10 p-2 rounded-lg hover:bg-white/10">
                         <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                     </Button>
 
-                    <!-- Placeholder when no stream -->
-                    <div v-if="!stream" class="absolute inset-0 flex items-center justify-center text-white/60">
+                    <div v-if="!stream || !videoEnabled"
+                        class="absolute inset-0 flex items-center justify-center text-white/60">
                         <div class="text-center">
-                            <ion-icon name="videocam-off-outline" class="text-6xl mb-4"></ion-icon>
-                            <p class="text-sm">Camera is off</p>
+                            <div
+                                class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <ion-icon name="person-outline" class="text-5xl text-white/80"></ion-icon>
+                            </div>
+                            <p class="text-sm">{{ !stream ? 'Camera is off' : 'Video disabled' }}</p>
                         </div>
                     </div>
 
                     <video ref="camera" autoplay playsinline class="w-full h-full object-cover mirror"
-                        :class="{ 'invisible': !stream }">
+                        :class="{ 'invisible': !stream || !videoEnabled }">
                     </video>
 
                     <div
@@ -92,14 +129,16 @@ const toggleCamera = async () => {
                             <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
                         </Button>
 
-                        <Button
-                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full bg-gray-800/60 hover:bg-gray-700/80 transition-all duration-200 backdrop-blur-sm">
-                            <ion-icon name="mic-outline"></ion-icon>
+                        <Button @click="toggleAudio"
+                            :class="audioEnabled ? 'bg-green-500/80 hover:bg-green-600/80' : 'bg-red-500 hover:bg-red-700/80'"
+                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm">
+                            <ion-icon :name="audioEnabled ? 'mic-outline' : 'mic-off-outline'"></ion-icon>
                         </Button>
 
                         <Button @click="toggleCamera"
-                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full bg-gray-800/60 hover:bg-gray-700/80 transition-all duration-200 backdrop-blur-sm">
-                            <ion-icon :name="enabled ? 'videocam-outline' : 'videocam-off-outline'"></ion-icon>
+                            :class="videoEnabled ? 'bg-green-500/80 hover:bg-green-600/80' : 'bg-red-500 hover:bg-red-700/80'"
+                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm">
+                            <ion-icon :name="videoEnabled ? 'videocam-outline' : 'videocam-off-outline'"></ion-icon>
                         </Button>
                     </div>
                 </div>
