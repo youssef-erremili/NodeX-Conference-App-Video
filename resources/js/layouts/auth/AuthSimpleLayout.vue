@@ -56,8 +56,9 @@ defineProps<{
                                     <p class="text-xs font-semibold text-white/50 uppercase tracking-widest">
                                         Founder</p>
                                     <span class="w-1 h-1 rounded-full bg-white/30"></span>
-                                    <p class="text-[10px] text-white/50 uppercase tracking-wider">Global Real Estate
-                                        Investment Firm</p>
+                                    <p class="text-[10px] text-white/50 uppercase tracking-wider">
+                                        Next-Gen Communication Infrastructure
+                                    </p>
                                 </div>
                             </div>
                         </div>
