@@ -31,6 +31,10 @@ export default defineConfigWithVueTs(
                     fixStyle: 'separate-type-imports',
                 },
             ],
+            'vue/no-unused-vars': 'error',
+            'no-console': 'warn',
+            'semi': ['error', 'always'],
+            'quotes': ['error', 'single'],
             'import/order': [
                 'error',
                 {
