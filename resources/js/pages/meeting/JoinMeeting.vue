@@ -1,9 +1,10 @@
-<script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+<script lang="ts" setup>
+import { router, usePage } from '@inertiajs/vue3';
 import { ref, watchEffect } from 'vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import Button from '@/components/ui/button/Button.vue';
+import { Spinner } from '@/components/ui/spinner';
 import HomeLayout from '@/layouts/HomeLayout.vue';
 
 const camera = ref<HTMLVideoElement | null>(null);
@@ -12,6 +13,7 @@ const errorMessage = ref<string | null>(null);
 const videoEnabled = ref(false);
 const audioEnabled = ref(false);
 const stream = ref<MediaStream | null>(null);
+const processing = ref<boolean>(false);
 
 const handleCameraError = (err: any) => {
     if (err.name === 'NotAllowedError') {
@@ -79,13 +81,21 @@ const toggleAudio = async () => {
     await updateMediaStream();
 };
 
+const joinMeeting = () => {
+    processing.value = true;
+    setTimeout(() => {
+        processing.value = false;
+        router.visit('/meeting-room');
+    }, 2000);
+};
+
 
 </script>
 
 <template>
     <HomeLayout :display-footer="false">
         <template v-if="errorMessage">
-            <Alert variant="destructive" class="w-fit mx-auto font-medium mt-10">
+            <Alert class="w-fit mx-auto font-medium mt-10" variant="destructive">
                 <AlertDescription>
                     {{ errorMessage }}
                 </AlertDescription>
@@ -96,7 +106,7 @@ const toggleAudio = async () => {
             <div class="flex flex-col items-center justify-center space-y-8">
                 <div class="relative w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden min-h-[450px]">
                     <div v-if="page.auth.user"
-                        class="absolute top-4 left-4 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-medium z-10">
+                         class="absolute top-4 left-4 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-medium z-10">
                         Logged in as
                         <span class="bg-white/15 text-white font-semibold p-2 rounded-lg hover:bg-white/10">
                             {{ page.auth.user.name }}
@@ -108,18 +118,19 @@ const toggleAudio = async () => {
                     </Button>
 
                     <div v-if="!stream || !videoEnabled"
-                        class="absolute inset-0 flex items-center justify-center text-white/60">
+                         class="absolute inset-0 flex items-center justify-center text-white/60">
                         <div class="text-center">
                             <div
                                 class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <ion-icon name="person-outline" class="text-5xl text-white/80"></ion-icon>
+                                <ion-icon class="text-5xl text-white/80" name="person-outline"></ion-icon>
                             </div>
                             <p class="text-sm">{{ !stream ? 'Camera is off' : 'Video disabled' }}</p>
                         </div>
                     </div>
 
-                    <video ref="camera" autoplay playsinline class="w-full h-full object-cover mirror"
-                        :class="{ 'invisible': !stream || !videoEnabled }">
+                    <video ref="camera" :class="{ 'invisible': !stream || !videoEnabled }" autoplay
+                           class="w-full h-full object-cover mirror"
+                           playsinline>
                     </video>
 
                     <div
@@ -129,15 +140,17 @@ const toggleAudio = async () => {
                             <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
                         </Button>
 
-                        <Button @click="toggleAudio"
+                        <Button
                             :class="audioEnabled ? 'bg-green-500/80 hover:bg-green-600/80' : 'bg-red-500 hover:bg-red-700/80'"
-                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm">
+                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm"
+                            @click="toggleAudio">
                             <ion-icon :name="audioEnabled ? 'mic-outline' : 'mic-off-outline'"></ion-icon>
                         </Button>
 
-                        <Button @click="toggleCamera"
+                        <Button
                             :class="videoEnabled ? 'bg-green-500/80 hover:bg-green-600/80' : 'bg-red-500 hover:bg-red-700/80'"
-                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm">
+                            class="text-white p-3 w-12 h-12 text-center text-xl rounded-full transition-all duration-200 backdrop-blur-sm"
+                            @click="toggleCamera">
                             <ion-icon :name="videoEnabled ? 'videocam-outline' : 'videocam-off-outline'"></ion-icon>
                         </Button>
                     </div>
@@ -151,14 +164,17 @@ const toggleAudio = async () => {
                 </div>
 
                 <Button
-                    class="rounded-xl mt-10 py-6 px-16 text-lg  bg-[#FF4D3C] hover:bg-[#ff4c3cd8] text-white transition-colors">
+                    :disabled="processing"
+                    class="rounded-xl flex items-center w-[15rem] mt-10 py-6 px-16 text-lg  bg-[#FF4D3C] hover:bg-[#ff4c3cd8] text-white transition-colors"
+                    type="button"
+                    @click="joinMeeting">
+                    <Spinner v-if="processing" class="mr-2" />
                     Join now
                 </Button>
             </div>
         </div>
     </HomeLayout>
 </template>
-
 <style scoped>
 .mirror {
     transform: scaleX(-1);
