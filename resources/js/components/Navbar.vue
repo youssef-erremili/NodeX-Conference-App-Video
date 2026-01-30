@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
-import { dashboard, login, register } from '@/routes';
 import AppLogo from './AppLogo.vue';
+import { dashboard, login, register } from '@/routes';
 
 const page = usePage();
 
