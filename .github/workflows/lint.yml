@@ -24,6 +24,12 @@ jobs:
         with:
           php-version: '8.4'
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Install Dependencies
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -32,14 +38,12 @@ jobs:
       - name: Run Pint
         run: composer lint
 
-      - name: Format Frontend
-        run: npm run format
+      - name: Run ESLint Fix
+        # We use lint:fix because your config now handles both formatting and linting
+        run: npm run lint:fix
 
-      - name: Lint Frontend
-        run: npm run lint
-
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: fix code style (Pint + ESLint)"
+          commit_options: '--no-verify'

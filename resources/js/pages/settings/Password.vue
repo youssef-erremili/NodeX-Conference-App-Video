@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
+import { Form, Head } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { edit } from '@/routes/user-password';
 import { type BreadcrumbItem } from '@/types';
-import { Form, Head } from '@inertiajs/vue3';
+import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
+import { edit } from '@/routes/user-password';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
