@@ -5,10 +5,11 @@ import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { Spinner } from '@/components/ui/spinner';
+import VideoPlayer from '@/components/VideoPlayer.vue';
 import HomeLayout from '@/layouts/HomeLayout.vue';
 
-const camera = ref<HTMLVideoElement | null>(null);
 const page = usePage().props;
+const camera = ref<any | null>(null);
 const errorMessage = ref<string | null>(null);
 const videoEnabled = ref(false);
 const audioEnabled = ref(false);
@@ -38,8 +39,8 @@ const getMediaStream = async (constraints: MediaStreamConstraints) => {
 };
 
 watchEffect(() => {
-    if (camera.value && stream.value) {
-        camera.value.srcObject = stream.value;
+    if (camera.value?.video && stream.value) {
+        camera.value.video.srcObject = stream.value;
         errorMessage.value = null;
     }
 });
@@ -117,21 +118,9 @@ const joinMeeting = () => {
                         <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                     </Button>
 
-                    <div v-if="!stream || !videoEnabled"
-                         class="absolute inset-0 flex items-center justify-center text-white/60">
-                        <div class="text-center">
-                            <div
-                                class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <ion-icon class="text-5xl text-white/80" name="person-outline"></ion-icon>
-                            </div>
-                            <p class="text-sm">{{ !stream ? 'Camera is off' : 'Video disabled' }}</p>
-                        </div>
-                    </div>
-
-                    <video ref="camera" :class="{ 'invisible': !stream || !videoEnabled }" autoplay
-                           class="w-full h-full object-cover mirror"
-                           playsinline>
-                    </video>
+                    <VideoPlayer ref="camera"
+                                 :class="{ 'invisible': !stream || !videoEnabled }"
+                                 :media="[stream, videoEnabled]" />
 
                     <div
                         class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
@@ -175,8 +164,3 @@ const joinMeeting = () => {
         </div>
     </HomeLayout>
 </template>
-<style scoped>
-.mirror {
-    transform: scaleX(-1);
-}
-</style>
