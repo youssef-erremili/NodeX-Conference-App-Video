@@ -5,7 +5,7 @@ import type { DefineComponent } from 'vue';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'NodeX Errehub';
 
 createServer(
     (page) =>
@@ -16,10 +16,10 @@ createServer(
             resolve: (name) =>
                 resolvePageComponent(
                     `./pages/${name}.vue`,
-                    import.meta.glob<DefineComponent>('./pages/**/*.vue'),
+                    import.meta.glob<DefineComponent>('./pages/**/*.vue')
                 ),
             setup: ({ App, props, plugin }) =>
-                createSSRApp({ render: () => h(App, props) }).use(plugin),
+                createSSRApp({ render: () => h(App, props) }).use(plugin)
         }),
-    { cluster: true },
+    { cluster: true }
 );
