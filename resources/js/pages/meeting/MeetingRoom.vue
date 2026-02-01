@@ -3,6 +3,64 @@ import GrayLayer from '@/components/GrayLayer.vue';
 import Microphone from '@/components/Microphone.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Label from '@/components/ui/label/Label.vue';
+
+const participants = ref([
+    {
+        name: 'Anne Hathaway',
+        role: 'Host',
+        image: 'https://i.pravatar.cc/150?u=anne',
+        isHost: true
+    },
+    {
+        name: 'Robert Pattinson',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=robert',
+        isHost: false
+    },
+    {
+        name: 'Natalie Portman',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=natalie',
+        isHost: false
+    },
+    {
+        name: 'Anne Hathaway',
+        role: 'Host',
+        image: 'https://i.pravatar.cc/150?u=anne',
+        isHost: true
+    },
+    {
+        name: 'Robert Pattinson',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=robert',
+        isHost: true
+    },
+    {
+        name: 'Natalie Portman',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=natalie',
+        isHost: false
+    },
+    {
+        name: 'Anne Hathaway',
+        role: 'Host',
+        image: 'https://i.pravatar.cc/150?u=anne',
+        isHost: true
+    },
+    {
+        name: 'Robert Pattinson',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=robert',
+        isHost: false
+    },
+    {
+        name: 'Natalie Portman',
+        role: '',
+        image: 'https://i.pravatar.cc/150?u=natalie',
+        isHost: false
+    }
+]);
+
 </script>
 
 <template>
