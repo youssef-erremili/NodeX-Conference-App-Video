@@ -34,7 +34,7 @@ const participants = ref([
         name: 'Robert Pattinson',
         role: '',
         image: 'https://i.pravatar.cc/150?u=robert',
-        isHost: false
+        isHost: true
     },
     {
         name: 'Natalie Portman',
