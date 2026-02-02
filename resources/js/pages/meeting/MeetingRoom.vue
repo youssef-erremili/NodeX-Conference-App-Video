@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import GrayLayer from '@/components/GrayLayer.vue';
 import Microphone from '@/components/Microphone.vue';
 import Button from '@/components/ui/button/Button.vue';
+import Chat from '@/components/ui/Chat/Chat.vue';
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
 
@@ -175,46 +176,22 @@ const messages = ref([
                     <Label class="capitalize font-bold ml-4 text-blue-700">Messages</Label>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-4 space-y-6 custom-scroll">
-                    <div v-for="(msg, index) in messages" :key="index"
-                         :class="['flex gap-3', msg.isMe ? 'flex-row-reverse' : 'flex-row']">
-
-                        <img :src="msg.avatar" class="size-8 rounded-full object-cover mt-1">
-
-                        <div :class="['flex flex-col max-w-[70%]', msg.isMe ? 'items-end' : 'items-start']">
-                            <div :class="['flex flex-col w-[100%]', msg.isMe ? 'items-end' : 'items-start']">
-                                <div
-                                    :class="['flex items-center gap-2 mb-1', msg.isMe ? 'flex-row-reverse' : 'flex-row']">
-                                    <span class="text-xs font-semibold text-gray-500">{{ msg.sender }}</span>
-                                    <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ msg.time }}</span>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        :class="['px-4 py-2 rounded-xl text-sm', msg.isMe ? 'bg-green-200/50 text-gray-800 rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none']">
-                                        {{ msg.text }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <Chat :messages="messages" />
 
                 <div class="p-4 border-t border-gray-100">
                     <div class="relative flex items-center bg-gray-50 rounded-xl px-4 py-2 border border-gray-200">
-                        <ion-icon class="text-gray-400 text-xl mr-2" name="image-outline"></ion-icon>
                         <Input
-                            class="bg-transparent border-none focus:ring-0 text-sm flex-1 text-gray-700"
-                            placeholder="Write message here.."
-                            type="text"
+                            class="bg-transparent! border-none! ring-0! shadow-none!"
+                            default-value=""
+                            placeholder="Write message"
+                            type=""
                         />
-                        <button class="text-blue-600 flex items-center">
+                        <Button variant="default">
                             <ion-icon class="text-xl" name="paper-plane-outline"></ion-icon>
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
