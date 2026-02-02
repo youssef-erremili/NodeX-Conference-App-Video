@@ -184,7 +184,7 @@ const messages = ref([
                             class="bg-transparent! border-none! ring-0! shadow-none!"
                             default-value=""
                             placeholder="Write message"
-                            type=""
+                            type="text"
                         />
                         <Button variant="default">
                             <ion-icon class="text-xl" name="paper-plane-outline"></ion-icon>
