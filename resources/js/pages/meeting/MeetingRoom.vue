@@ -69,7 +69,7 @@ const messages = ref([
 </script>
 
 <template>
-    <div class="flex h-screen w-full gap-4 p-4">
+    <div class="flex h-screen w-full gap-10 px-12 py-6">
         <div class="flex flex-col flex-1 gap-4">
             <div class="relative rounded-2xl h-full overflow-hidden">
                 <img alt="Sample Image"
@@ -139,7 +139,7 @@ const messages = ref([
             </div>
         </div>
 
-        <div class="w-80 p-2">
+        <div class="w-3/12 px-2">
             <div class="rounded-xl rounded-br-md bg-white shadow-xl shadow-gray-200/50 overflow-hidden select-none">
                 <div class="bg-blue-400/10 rounded-2xl py-5 sticky top-0 z-20">
                     <Label class="capitalize font-bold ml-4 text-blue-700">participants (5)</Label>
