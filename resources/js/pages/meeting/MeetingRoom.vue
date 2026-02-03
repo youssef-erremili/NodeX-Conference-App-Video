@@ -1,12 +1,19 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import GrayLayer from '@/components/GrayLayer.vue';
 import Microphone from '@/components/Microphone.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Chat from '@/components/ui/Chat/Chat.vue';
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
+import VideoPlayer from '@/components/VideoPlayer.vue';
+import { requestMediaStream } from '@/utils/useMediaDevices';
 
+const camera = ref<any | null>(null);
+const errorMessage = ref<string | null>(null);
+const videoEnabled = ref(false);
+const audioEnabled = ref(false);
+const stream = ref<MediaStream | null>(null);
 const participants = ref([
     {
         name: 'Anne Hathaway',
@@ -66,18 +73,61 @@ const messages = ref([
     }
 ]);
 
+
+const updateMediaStream = async () => {
+    if (stream.value) {
+        stream.value.getTracks().forEach(track => track.stop());
+        stream.value = null;
+    }
+
+    if (videoEnabled.value || audioEnabled.value) {
+        const { stream: newStream, error } = await requestMediaStream({
+            video: videoEnabled.value,
+            audio: audioEnabled.value
+        });
+
+        if (error) {
+            errorMessage.value = error;
+            // Revert toggles if access failed
+            videoEnabled.value = false;
+            audioEnabled.value = false;
+        } else {
+            stream.value = newStream;
+            errorMessage.value = null;
+        }
+    }
+};
+
+watchEffect(() => {
+    if (camera.value?.video && stream.value) {
+        camera.value.video.srcObject = stream.value;
+        errorMessage.value = null;
+    }
+});
+
+const toggleCamera = async () => {
+    videoEnabled.value = !videoEnabled.value;
+    // Auto-enable audio if camera is turned on (matching original logic)
+    if (videoEnabled.value) {
+        audioEnabled.value = true;
+    }
+    await updateMediaStream();
+};
+
+const toggleAudio = async () => {
+    audioEnabled.value = !audioEnabled.value;
+    await updateMediaStream();
+};
+
 </script>
 
 <template>
     <div class="flex h-screen w-full gap-10 px-12 py-6">
         <div class="flex flex-col flex-1 gap-4">
-            <div class="relative rounded-2xl h-full overflow-hidden">
-                <img alt="Sample Image"
-                     class="w-full h-full aspect-ratio object-cover"
-                     height="100%"
-                     src="/images/sample-image.jpg"
-                     width="100%"
-                >
+            <div class="relative rounded-2xl h-full overflow-hidden bg-black">
+                <VideoPlayer ref="camera"
+                             :class="{ 'invisible': !stream || !videoEnabled }"
+                             :media="[stream, videoEnabled]" />
                 <GrayLayer />
                 <Label class="absolute left-4 bottom-3 z-10 text-white capitalize">You</Label>
             </div>
@@ -119,17 +169,21 @@ const messages = ref([
             </div>
             <div class="h-32 flex justify-center items-center">
                 <Button
-                    class="px-10 py-8 text-xl text-gray-900 bg-white border border-gray-300 rounded-2xl hover:bg-indigo-100 hover:text-indigo-700">
+                    class="px-10 py-8 text-2xl text-gray-900 bg-white border border-gray-300 rounded-2xl hover:bg-indigo-100 hover:text-indigo-700">
                     <ion-icon name="volume-high-outline"></ion-icon>
                 </Button>
                 <div class="mx-20">
                     <Button
-                        class="px-10 py-8 mr-2 text-xl text-gray-900 bg-white border border-gray-300 rounded-2xl hover:bg-indigo-100 hover:text-indigo-700">
-                        <ion-icon name="mic-outline"></ion-icon>
+                        :class="audioEnabled ? 'text-green-500 border-green-500' : 'text-red-500 border-red-500'"
+                        class="px-10 py-8 mr-2 text-2xl bg-white border-2  rounded-2xl hover:bg-gray-50"
+                        @click="toggleAudio">
+                        <ion-icon :name="audioEnabled ? 'mic-outline' : 'mic-off-outline'"></ion-icon>
                     </Button>
                     <Button
-                        class="px-10 py-8 text-xl text-gray-900 bg-white border border-gray-300 rounded-2xl hover:bg-indigo-100 hover:text-indigo-700">
-                        <ion-icon name="videocam-outline"></ion-icon>
+                        :class="videoEnabled ? 'text-green-500 border-green-500' : 'text-red-500 border-red-500'"
+                        class="px-10 py-8 text-2xl bg-white border-2 rounded-2xl hover:bg-gray-50"
+                        @click="toggleCamera">
+                        <ion-icon :name="videoEnabled ? 'videocam-outline' : 'videocam-off-outline'"></ion-icon>
                     </Button>
                 </div>
                 <Button
