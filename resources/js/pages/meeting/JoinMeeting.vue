@@ -7,6 +7,7 @@ import Button from '@/components/ui/button/Button.vue';
 import { Spinner } from '@/components/ui/spinner';
 import VideoPlayer from '@/components/VideoPlayer.vue';
 import HomeLayout from '@/layouts/HomeLayout.vue';
+import { requestMediaStream } from '@/utils/useMediaDevices';
 
 const page = usePage().props;
 const camera = ref<any | null>(null);
@@ -16,25 +17,27 @@ const audioEnabled = ref(false);
 const stream = ref<MediaStream | null>(null);
 const processing = ref<boolean>(false);
 
-const handleCameraError = (err: any) => {
-    if (err.name === 'NotAllowedError') {
-        errorMessage.value = 'Camera access denied. Please allow camera permissions.';
-    } else if (err.name === 'NotFoundError') {
-        errorMessage.value = 'No camera found on this device.';
-    } else if (err.name === 'NotReadableError') {
-        errorMessage.value = 'Camera is already in use by another application.';
-    } else {
-        errorMessage.value = `Camera error: ${err.message}`;
+const updateMediaStream = async () => {
+    if (stream.value) {
+        stream.value.getTracks().forEach(track => track.stop());
+        stream.value = null;
     }
-};
 
-const getMediaStream = async (constraints: MediaStreamConstraints) => {
-    try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        return mediaStream;
-    } catch (err: any) {
-        handleCameraError(err);
-        throw err;
+    if (videoEnabled.value || audioEnabled.value) {
+        const { stream: newStream, error } = await requestMediaStream({
+            video: videoEnabled.value,
+            audio: audioEnabled.value
+        });
+
+        if (error) {
+            errorMessage.value = error;
+            // Revert toggles if access failed
+            videoEnabled.value = false;
+            audioEnabled.value = false;
+        } else {
+            stream.value = newStream;
+            errorMessage.value = null;
+        }
     }
 };
 
@@ -45,32 +48,9 @@ watchEffect(() => {
     }
 });
 
-const updateMediaStream = async () => {
-    try {
-        if (stream.value) {
-            stream.value.getTracks().forEach(track => track.stop());
-            stream.value = null;
-        }
-
-        if (videoEnabled.value || audioEnabled.value) {
-            const constraints: MediaStreamConstraints = {
-                video: videoEnabled.value,
-                audio: audioEnabled.value
-            };
-            stream.value = await getMediaStream(constraints);
-        }
-
-        errorMessage.value = null;
-    } catch (err: any) {
-        handleCameraError(err);
-        videoEnabled.value = false;
-        audioEnabled.value = false;
-        stream.value = null;
-    }
-};
-
 const toggleCamera = async () => {
     videoEnabled.value = !videoEnabled.value;
+    // Auto-enable audio if camera is turned on (matching original logic)
     if (videoEnabled.value) {
         audioEnabled.value = true;
     }
@@ -89,8 +69,6 @@ const joinMeeting = () => {
         router.visit('/meeting-room');
     }, 2000);
 };
-
-
 </script>
 
 <template>
